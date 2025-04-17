@@ -244,6 +244,15 @@ class PerfBenchScriptTestCmds(NamedTuple):
                     f'Running engine building command: "{build_cmd_str}"')
                 command = self.build_cmd
                 output += subprocess.check_output(command, env=envs).decode()
+                # write config.json to output log
+                match = re.search(r'--workspace=([^\s]+)', build_cmd_str)
+                if match:
+                    engine_dir = match.group(1)
+                    print_info(
+                        f'writing config.json in {engine_dir} to output log')
+                    with open(os.path.join(engine_dir, "config.json"),
+                              "r") as f:
+                        output += f.read()
         else:
             #running throughput
             print(f'Now running benchmarking command: "{current_cmd_str}"')

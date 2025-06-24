@@ -27,12 +27,10 @@ def get_model_yaml_config(model_label: str) -> dict:
             dict: yaml config
         """
     base_config = {
-        'enable_attention_dp': True,
         'pytorch_backend_config': {
             'print_iter_log': True,
-            'use_cuda_graph': True,
+            'use_cuda_graph': False,
             'cuda_graph_padding_enabled': True,
-            'cuda_graph_max_batch_size': 4096,
         }
     }
     model_configs = {

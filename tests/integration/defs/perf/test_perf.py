@@ -411,6 +411,8 @@ class PerfTestConfig:
         self.num_gpus = num_gpus
         # Just build engines
         self.build_only = False
+        # Multi-node
+        self.multi_node = False
 
     def to_string(self,
                   custom_bs: int = None,
@@ -524,6 +526,9 @@ class PerfTestConfig:
         if self.num_gpus > 1:
             entries.append(f"gpus:{self.num_gpus}")
 
+        if self.multi_node:
+            entries.append(f"multi_node")
+
         # Concatenate labels with "-".
         return "-".join(entries)
 
@@ -630,6 +635,10 @@ class PerfTestConfig:
         if len(labels) > 0:
             self.num_gpus = 1 if not labels[0].startswith("gpus:") else int(
                 labels.pop(0).replace("gpus:", ""))
+
+        if len(labels) > 0:
+            self.multi_node = True if not labels[0].startswith(
+                "multi_node") else labels.pop(0).replace("multi_node", "")
 
         assert len(
             labels
@@ -1214,6 +1223,8 @@ class MultiMetricPerfTest(AbstractPerfScriptTestClass):
         hf_model_name = HF_MODEL_PATH.get(model_name, "")
         tp_pp_str = f"tp_{self._config.tp_size}_pp_{self._config.pp_size}"
         engine_dir = os.path.join(engine_dir, hf_model_name, tp_pp_str)
+        if self._config.multi_node:
+            self._benchmark_script = "trtllm-llmapi-launch ${self._benchmark_script}"
         benchmark_cmd = [
             self._benchmark_script,
             f"--model={model_name}",

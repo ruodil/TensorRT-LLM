@@ -29,7 +29,7 @@ def get_model_yaml_config(model_label: str) -> dict:
     base_config = {
         'pytorch_backend_config': {
             'print_iter_log': True,
-            'use_cuda_graph': False,
+            'use_cuda_graph': True,
             'cuda_graph_padding_enabled': True,
         }
     }
@@ -89,6 +89,8 @@ def get_model_yaml_config(model_label: str) -> dict:
         {
             'pytorch_backend_config': {
                 'use_cuda_graph':
+                True,
+                'cuda_graph_padding_enabled':
                 True,
                 'cuda_graph_batch_sizes': [
                     1, 2, 4, 8, 16, 32, 64, 128, 256, 384, 512, 1024, 2048,

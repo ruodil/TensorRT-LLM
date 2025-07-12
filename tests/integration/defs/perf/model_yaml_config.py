@@ -103,6 +103,8 @@ def get_model_yaml_config(model_label: str) -> dict:
             'pytorch_backend_config': {
                 'use_cuda_graph':
                 True,
+                'cuda_graph_padding_enabled':
+                True,
                 'cuda_graph_batch_sizes': [
                     1, 2, 4, 8, 16, 32, 64, 128, 256, 384, 512, 1024, 2048,
                     4096, 8192
@@ -113,6 +115,8 @@ def get_model_yaml_config(model_label: str) -> dict:
         {
             'pytorch_backend_config': {
                 'use_cuda_graph':
+                True,
+                'cuda_graph_padding_enabled':
                 True,
                 'cuda_graph_batch_sizes': [
                     1, 2, 4, 8, 16, 32, 64, 128, 256, 384, 512, 1024, 2048,
@@ -125,6 +129,8 @@ def get_model_yaml_config(model_label: str) -> dict:
             'pytorch_backend_config': {
                 'use_cuda_graph':
                 True,
+                'cuda_graph_padding_enabled':
+                True,
                 'cuda_graph_batch_sizes': [
                     1, 2, 4, 8, 16, 32, 64, 128, 256, 384, 512, 1024, 2048,
                     4096, 8192
@@ -135,6 +141,8 @@ def get_model_yaml_config(model_label: str) -> dict:
         {
             'pytorch_backend_config': {
                 'use_cuda_graph':
+                True,
+                'cuda_graph_padding_enabled':
                 True,
                 'cuda_graph_batch_sizes': [
                     1, 2, 4, 8, 16, 32, 64, 128, 256, 384, 512, 1024, 2048,
@@ -147,6 +155,7 @@ def get_model_yaml_config(model_label: str) -> dict:
     model_name = next(
         (key for key in model_configs if key in model_label.lower()), None)
     if model_name:
-        base_config.update(model_configs[model_name])
+        base_config['pytorch_backend_config'].update(
+            model_configs[model_name]['pytorch_backend_config'])
 
     return base_config

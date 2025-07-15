@@ -1137,8 +1137,8 @@ class MultiMetricPerfTest(AbstractPerfScriptTestClass):
             f"--model_path={model_dir}",
             "throughput",
             f"--dataset={dataset_path}",
-            f"--max_batch_size={self._config.max_batch_size}",
-            f"--max_num_tokens={self._config.max_num_tokens}",
+            # f"--max_batch_size={self._config.max_batch_size}",
+            # f"--max_num_tokens={self._config.max_num_tokens}",
             f"--report_json={report_path}",
         ]
         if self._config.backend != "pytorch":

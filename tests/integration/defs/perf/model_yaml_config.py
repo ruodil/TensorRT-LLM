@@ -150,6 +150,18 @@ def get_model_yaml_config(model_label: str) -> dict:
                 ]
             }
         },
+        'llama_v4_maverick_17b_128e_instruct_fp8-bench-pytorch-float8': {
+            'pytorch_backend_config': {
+                'use_cuda_graph':
+                True,
+                'cuda_graph_padding_enabled':
+                True,
+                'cuda_graph_batch_sizes': [
+                    1, 2, 4, 8, 16, 32, 64, 128, 256, 384, 512, 1024, 2048,
+                    4096, 8192
+                ]
+            }
+        },
     }
     # get model name from model_label
     model_name = next(

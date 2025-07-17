@@ -61,7 +61,8 @@ MODEL_PATH_DICT = {
     "nemotron-nas/Llama-3_3-Nemotron-Super-49B-v1",
     "llama_v3.1_nemotron_ultra_253b":
     "nemotron-nas/Llama-3_1-Nemotron-Ultra-253B-v1",
-    # "llama_30b": "llama-models/llama-30b-hf",
+    "llama_v4_maverick_17b_128e_instruct_fp8":
+    "modelopt-hf-model-hub/Llama-4-Maverick-17B-128E-Instruct-FP8/",
     "mixtral_8x7b_v0.1": "Mixtral-8x7B-v0.1",
     "mixtral_8x7b_v0.1_instruct": "Mixtral-8x7B-Instruct-v0.1",
     "mixtral_8x7b_v0.1_instruct_fp8": "Mixtral-8x7B-Instruct-v0.1-fp8",

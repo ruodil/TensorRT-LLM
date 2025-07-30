@@ -348,35 +348,33 @@ class PerfTestConfig:
     This should hold only the attributes that distinguish different tests.
     """
 
-    def __init__(
-        self,
-        *,
-        model_name: str = "",
-        runtime: str = "python",
-        static_batching: str = "",
-        api: str = "",
-        streaming: str = "",
-        backend: str = "",
-        mode: str = "plugin",
-        data_type: str = "float16",
-        max_batch_size: int = 512,
-        max_num_tokens: int = 2048,
-        gpu_weights_percent: float = -1,
-        batch_sizes: List[int] = [0],
-        input_lens: List[int] = [8],
-        output_lens: List[int] = [1],
-        num_beams: int = 1,
-        num_loras: int = 0,
-        num_reqs: int = 512,
-        concurrency: int = -1,
-        quantization: str = "",
-        kv_cache_dtype: str = "auto",
-        ep_size: int = None,
-        tp_size: int = 1,
-        pp_size: int = 1,
-        num_gpus: int = 1,
-        kv_cache_free_gpu_mem_fraction: float = 0.9,
-    ):
+    def __init__(self,
+                 *,
+                 model_name: str = "",
+                 runtime: str = "python",
+                 static_batching: str = "",
+                 api: str = "",
+                 streaming: str = "",
+                 backend: str = "",
+                 mode: str = "plugin",
+                 data_type: str = "float16",
+                 max_batch_size: int = 512,
+                 max_num_tokens: int = 2048,
+                 kv_cache_free_gpu_mem_fraction: float = 0.9,
+                 gpu_weights_percent: float = -1,
+                 batch_sizes: List[int] = [0],
+                 input_lens: List[int] = [8],
+                 output_lens: List[int] = [1],
+                 num_beams: int = 1,
+                 num_loras: int = 0,
+                 num_reqs: int = 512,
+                 concurrency: int = -1,
+                 quantization: str = "",
+                 kv_cache_dtype: str = "auto",
+                 ep_size: int = None,
+                 tp_size: int = 1,
+                 pp_size: int = 1,
+                 num_gpus: int = 1):
         # The model name.
         self.model_name = model_name
         # Python or cpp/cppmanager runtime.
@@ -399,6 +397,8 @@ class PerfTestConfig:
         self.max_batch_size = max_batch_size
         # Max number of tokens to build TRT engine with.
         self.max_num_tokens = max_num_tokens
+        # kv cache free gpu mem fraction
+        self.kv_cache_free_gpu_mem_fraction = kv_cache_free_gpu_mem_fraction
         # List of batch sizes to run benchmark with.
         self.batch_sizes = batch_sizes
         # List of input lens to run benchmark with.
@@ -429,8 +429,6 @@ class PerfTestConfig:
         self.num_gpus = num_gpus
         # Just build engines
         self.build_only = False
-        # kv cache free gpu mem fraction
-        self.kv_cache_free_gpu_mem_fraction = kv_cache_free_gpu_mem_fraction
 
     def to_string(self,
                   custom_bs: int = None,
@@ -473,6 +471,10 @@ class PerfTestConfig:
 
         # Add Max number of tokens.
         entries.append(f"maxnt:{self.max_num_tokens}")
+
+        # Add kv cache free gpu mem fraction.
+        if self.kv_cache_free_gpu_mem_fraction != 0.9:
+            entries.append(f"kv_frac:{self.kv_cache_free_gpu_mem_fraction}")
 
         if self.build_only:
             entries.append(f"build_only")
@@ -586,6 +588,10 @@ class PerfTestConfig:
 
         if labels[0].startswith("maxnt"):
             self.max_num_tokens = int(labels.pop(0).replace("maxnt:", ""))
+
+        if labels[0].startswith("kv_frac:"):
+            self.kv_cache_free_gpu_mem_fraction = float(
+                labels.pop(0).replace("kv_frac:", ""))
 
         if labels[0] == "build_only":
             self.build_only = True
@@ -1010,7 +1016,8 @@ class MultiMetricPerfTest(AbstractPerfScriptTestClass):
             f"--workspace={engine_dir}", f"--model={hf_model_name}",
             f"--model_path={model_dir}", "build", f"--dataset={dataset_path}",
             f"--tp_size={self._config.tp_size}",
-            f"--pp_size={self._config.pp_size}"
+            f"--pp_size={self._config.pp_size}",
+            f"--kv_cache_free_gpu_mem_fraction={self._config.kv_cache_free_gpu_mem_fraction}"
         ]
         max_seq_len = max(self._config.input_lens) + max(
             self._config.output_lens)

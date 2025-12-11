@@ -1372,6 +1372,8 @@ class MultiMetricPerfTest(AbstractPerfScriptTestClass):
             benchmark_cmd += [f"--pp={self._config.pp_size}"]
         if self._config.streaming == "streaming":
             benchmark_cmd += [f"--streaming"]
+        if self._config.num_gpus > 1:
+            benchmark_cmd += [f"--warmup={2 * self._config.num_gpus}"]
         #use default yaml config
         if self._config.backend == "pytorch":
             import yaml

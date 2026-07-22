@@ -816,6 +816,7 @@ class Runner:
                 dtype=kv_cache_dtype,
                 spec_config=None,
                 layer_mask=layer_mask,
+                vocab_size=config.vocab_size,
                 sparse_attention_config=model_config.sparse_attention_config,
                 pretrained_config=model_config.pretrained_config,
             )

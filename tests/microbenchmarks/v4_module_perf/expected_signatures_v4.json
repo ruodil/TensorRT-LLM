@@ -1,0 +1,38 @@
+{
+  "_comment": "Expected kernel-family signatures per DeepSeek-V4 module, used by the pure (no-GPU) signature-alignment checks. target_families are the critical-path families a module micro-case must measure. Derived from the module-perf design review.",
+  "mhc_glue": {
+    "case": "deepseek_v4_mhc_glue_tf32_hyper_connection",
+    "expected_families": [
+      "mhcGemmSqrsumFmaKernel", "mhcBigFuseKernel", "fused_tf32_pmap_gemm",
+      "fused_allinone_tf32_pmap_gemm", "sm100_tf32_hc_prenorm_gemm",
+      "fused_pmap_gemm_fma_allinone", "fused_pmap_gemm_fma_ksplit"
+    ],
+    "target_families": [
+      "mhcGemmSqrsumFmaKernel", "mhcBigFuseKernel", "fused_tf32_pmap_gemm",
+      "sm100_tf32_hc_prenorm_gemm"
+    ]
+  },
+  "MLA": {
+    "case": "deepseek_v4_mla_glue_rope_quant_qnorm",
+    "expected_families": [
+      "inverseRopeFp8QuantKernelPipelined", "deepseekV4QNormKernel",
+      "applyMLARopeAndAssignQKVKernelOptContext", "mlaRoPEInplaceKernel"
+    ],
+    "target_families": [
+      "inverseRopeFp8QuantKernelPipelined", "deepseekV4QNormKernel",
+      "applyMLARopeAndAssignQKVKernelOptContext"
+    ]
+  },
+  "MoE": {
+    "case": "deepseek_v4_moe_ep_dispatch",
+    "expected_families": [
+      "moeA2ADispatchKernel", "moeA2ACombineKernel", "moeA2ASanitizeExpertIdsKernel",
+      "moeA2APrepareCombineKernel", "moeA2APrepareDispatchKernel", "sm100_fp8_fp4_gemm",
+      "_fused_expand_group_quant_fp8", "_silu_and_mul_post_quant_kernel",
+      "fused_gather_finalize_kernel", "gate_forward_kernel", "blockExpertPrefixSumKernel",
+      "globalExpertPrefixSumLargeKernel", "mergeExpertPrefixSumKernel",
+      "_preprocess_after_permute_kernel"
+    ],
+    "target_families": ["moeA2ADispatchKernel", "sm100_fp8_fp4_gemm"]
+  }
+}

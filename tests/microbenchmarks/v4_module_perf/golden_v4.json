@@ -1,0 +1,12 @@
+{
+  "_comment": "Per-(case_id, GPU device name) golden for DeepSeek-V4 module microbenchmarks. These are ISOLATED-OP continuous gpu_time gates: gate = baseline_ms*(1+max(k_sigma*cv, rel_floor)), defaults k_sigma=4 rel_floor=0.01. Empty case map => bootstrap (test prints observed, does not fail). GPU key is torch.cuda.get_device_name (== CSV gpu_name), NOT sm_arch. baseline_ms values are placeholders until a real run bootstraps them on the target GPU. NOTE: model-level kernel launch counts (e.g. mhcGemmSqrsumFmaKernel=7119 over a full CTX layer-slice) are NOT isolated-op signals and are validated separately against the layerwise nsys trace, not here.",
+  "mhc_ctx_gemm_time": {
+    "NVIDIA B200": {"baseline_ms": 1.85, "cv": 0.03, "k_sigma": 4, "rel_floor": 0.01}
+  },
+  "mla_ctx_qnorm_time": {
+    "NVIDIA B200": {"baseline_ms": 0.42, "cv": 0.04, "k_sigma": 4, "rel_floor": 0.01}
+  },
+  "moe_ctx_dispatch_time": {
+    "NVIDIA B200": {"baseline_ms": 2.10, "cv": 0.05, "k_sigma": 4, "rel_floor": 0.01}
+  }
+}

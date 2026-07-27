@@ -42,6 +42,12 @@ tests/microbenchmarks/attention_perf/test_attention_perf_module.py::test_mla_fp8
 tests/microbenchmarks/attention_perf/test_attention_perf_module.py::test_dsa_ctx_dispatch             discrete      # DSA context launch_count (indexer + sparse-FMHA chain); no golden yet -> bootstrap
 tests/microbenchmarks/attention_perf/test_attention_perf_module.py::test_dsa_ctx_time                 continuous    # DSA context gpu_time; no golden yet -> bootstrap
 
+# --- DeepSeek-V4 modules (harness: v4_module_perf/v4_module_perf_harness.py; isolated torch.ops.trtllm.* op timing) ---
+#   Each times one real kernel op; golden baseline_ms is placeholder -> bootstrap on first B200 run.
+tests/microbenchmarks/v4_module_perf/test_mhc_perf.py::test_mhc_ctx_gemm_time            continuous    # mHC GEMM (mhc_gemm_sqrsum_fma / mhcGemmSqrsumFmaKernel)
+tests/microbenchmarks/v4_module_perf/test_mla_glue_perf.py::test_mla_ctx_qnorm_time      continuous    # MLA q_norm (deepseek_v4_q_norm / deepseekV4QNormKernel)
+tests/microbenchmarks/v4_module_perf/test_moe_ep_dispatch_perf.py::test_moe_ctx_dispatch_time  continuous  # MoE EP-dispatch (moe_a2a_dispatch / moeA2ADispatchKernel)
+
 # Backlog: DSA DECODE (forward_generation_dsa — needs cache pre-population, follow-up to the
 #   context case above), SWA+sink family (gpt_oss-20b/120b — sliding-window + attention-sink).
 #   Other discrete probes (PLATFORM §4): fmha_cubin_present, fmha_no_jit_recompile (both need the

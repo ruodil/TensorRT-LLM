@@ -33,10 +33,18 @@ def test_mhc_ctx_gemm_time():
     import torch
     # Real op signature (tensorrt_llm/_torch/modules/mhc/mhc_cuda.py):
     #   mhc_gemm_sqrsum_fma(x[M,K], w_t[K,N], y_acc[M,N] fp32, r_acc[M] fp32, M, N, K, tile_n, tile_m)
-    # FP32 FMA GEMM on CUDA cores. M=tokens (ctx seq), K=hidden, N=mHC width.
-    M, K, N = 8192, 7168, 4096
-    x = torch.randn(M, K, device="cuda", dtype=torch.float32)
-    w_t = torch.randn(K, N, device="cuda", dtype=torch.float32)
+    # The mHC mixing GEMM is x=residual_flat[M, hc_dim] @ hc_fn[mix_hc, hc_dim]^T
+    # -> y[M, mix_hc], fused with a per-row sqrsum (feeds RMSNorm). Shapes are
+    # reverse-engineered from the DeepSeek-V4 CTX layerwise trace:
+    # mhcGemmSqrsumFmaKernel is bf16, block=256, tile_n in {1,2,3,6,8,12} -- all
+    # divide mix_hc=24, so mult(hc)=4 (mix_hc=(2+mult)*mult).
+    #   M = tokens (ctx seq)        = 8192
+    #   K = hc_dim = mult * hidden  = 4 * 7168 = 28672   (contraction dim)
+    #   N = mix_hc = (2+mult)*mult  = 24                 (tall-skinny output)
+    # bf16 inputs, fp32 accumulators ("FP32 FMA" is the accumulate, not the input).
+    M, K, N = 8192, 28672, 24
+    x = torch.randn(M, K, device="cuda", dtype=torch.bfloat16)
+    w_t = torch.randn(K, N, device="cuda", dtype=torch.bfloat16)
     y_acc = torch.empty((M, N), dtype=torch.float32, device="cuda")
     r_acc = torch.empty((M,), dtype=torch.float32, device="cuda")
     median, p99, cv = measure_gpu_time_ms(

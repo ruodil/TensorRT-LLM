@@ -28,7 +28,9 @@ def test_mla_ctx_qnorm_time():
     import torch
     # Real op signature (tensorrt_llm/_torch/modules/mla.py):
     #   deepseek_v4_q_norm(q[tokens, num_heads*head_dim], num_heads, head_dim, eps)
-    # kernel requires head_dim == 512; num_heads is per-TP (representative).
+    # Shapes from the DeepSeek-V4 CTX layerwise trace: deepseekV4QNormKernel is
+    # bf16, block=128, tpl=[512] -> head_dim==512 (kernel-required). tokens=8192
+    # (ctx seq); num_heads is per-TP (128 heads / TP8 = 16; 32 is representative).
     tokens, num_heads, head_dim = 8192, 32, 512
     q = torch.randn(tokens, num_heads * head_dim, device="cuda", dtype=torch.bfloat16)
     median, p99, cv = measure_gpu_time_ms(lambda: op(q, num_heads, head_dim, 1e-6))

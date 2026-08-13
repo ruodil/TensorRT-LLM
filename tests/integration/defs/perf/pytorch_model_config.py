@@ -117,6 +117,41 @@ def get_model_yaml_config(model_label: str,
                 'max_seq_len': 10240,
             }
         },
+        # Backport of the V4-Pro FP4 perf config so this tree resolves the case the
+        # calibration pack was captured under (attention-DP on, MoE backend TRTLLM).
+        {
+            'patterns': [
+                'deepseek_v4_pro_fp4-bench-pytorch-float4-maxbs:32-maxnt:8448',
+            ],
+            'config': {
+                'enable_attention_dp': True,
+                'enable_lm_head_tp_in_adp': True,
+                'attention_dp_config': {
+                    'enable_balance': True,
+                },
+                'moe_config': {
+                    'backend': 'TRTLLM',
+                    'use_low_precision_moe_combine': True,
+                },
+                'max_seq_len': 9256,
+                'kv_cache_config': {
+                    'dtype': 'fp8',
+                    'enable_block_reuse': False,
+                    'free_gpu_memory_fraction': 0.6,
+                    'tokens_per_block': 128,
+                },
+                'cuda_graph_config': {
+                    'enable_padding': True,
+                    'batch_sizes': [1, 2, 4, 8, 16, 24, 32],
+                },
+                'speculative_config': {
+                    'decoding_type': 'MTP',
+                    'max_draft_len': 1,
+                },
+                'stream_interval': 100,
+                'num_postprocess_workers': 4,
+            }
+        },
         # DeepSeek V4 Pro DSpark mirrors the upstream 8-GPU accuracy configuration.
         {
             'patterns': ['deepseek_v4_pro_dspark'],

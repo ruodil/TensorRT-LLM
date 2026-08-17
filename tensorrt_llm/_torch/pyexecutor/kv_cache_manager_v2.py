@@ -2989,7 +2989,23 @@ class KVCacheManagerV2(BaseResourceManager):
                     return None
                 kv_cache.stop_committing()
                 dummy_capacity = token_num + self.num_extra_kv_tokens + num_extra_decoding_steps
-                if is_gen and not materialize_history:
+                # Scratch reuse must be off for every is_gen dummy request on this tree, not
+                # only the ones that hint their own history. The second resize below grows
+                # capacity by one, and resize() then requires
+                #   old_capacity - max_rewind_len <= history_length <= old_capacity
+                # where max_rewind_len is num_extra_kv_tokens -- 0 without speculative
+                # decoding. The window collapses to history_length == old_capacity, while
+                # materialize_history leaves history_hint None, which resize() reads back as
+                # the cache's own _history_length: still 0. The assert cannot be satisfied.
+                #
+                # The patch this came from did not need this because it was written against a
+                # tree whose pools carry no live sliding window (that mapping prints
+                # layer_group_id and no AttnLifeCycle). Here they do -- build #1 printed
+                # AttnLifeCycle(window_size=128) and died on all 8 ranks, GEN and CTX alike.
+                #
+                # KvCacheConfig.enable_swa_scratch_reuse stays on, so the solver keeps sizing
+                # the pools with a scratch budget; only the dummy registration opts out.
+                if is_gen:
                     kv_cache.enable_swa_scratch_reuse = False
                 # Need to hint the committed history to activate stale-block
                 # optimization and match the solver's pool budget.
